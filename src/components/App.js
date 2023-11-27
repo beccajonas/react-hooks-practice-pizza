@@ -5,6 +5,7 @@ import PizzaList from "./PizzaList";
 
 function App() {
   const [pizzas, setPizzas ] = useState([])
+  const [selectedPizza, setSelectedPizza] = useState(null)
 
   useEffect(() => {
     fetch('http://localhost:3001/pizzas')
@@ -12,12 +13,30 @@ function App() {
     .then(data => setPizzas(data))
   }, [])
 
-  console.log(pizzas);
+  function handlePizzaEdit(pizzaToEdit) {
+    setSelectedPizza(pizzaToEdit)
+  }
+
+  function handleChangeForm(name, value) {
+    setSelectedPizza(prevPizza => ({
+      ...prevPizza,
+      [name]: name === 'vegetarian' ? value === 'Vegetarian' : value,
+    }));
+  }
+
+  function handleFormSubmit(updatedPizza) {
+    const updatedPizzas = pizzas.map(pizza =>
+      pizza.id === updatedPizza.id ? updatedPizza : pizza
+    )
+    setSelectedPizza(updatedPizza)
+    setPizzas(updatedPizzas)
+  }
+
   return (
     <>
       <Header />
-      <PizzaForm />
-      <PizzaList pizzas={pizzas}/>
+      <PizzaForm pizza={selectedPizza} onChangeForm={handleChangeForm} onFormSubmit={handleFormSubmit} />
+      <PizzaList pizzas={pizzas} handlePizzaEdit={handlePizzaEdit} />
     </>
   );
 }
